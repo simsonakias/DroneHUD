@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.Spinner;
 
 import com.drones.dimis.dronehud.R;
+import com.drones.dimis.dronehud.common.otto.events.AirSpeedEvent;
 import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
 import com.drones.dimis.dronehud.common.otto.events.AttitudeUpdateEvent;
 import com.drones.dimis.dronehud.common.otto.events.BatteryUpdateEvent;
@@ -183,23 +184,14 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
                 break;
 
             case AttributeEvent.GPS_FIX:
-                Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
-                GpsFixEvent gpsEv = new GpsFixEvent();
-                gpsEv.setData(droneGps.getFixStatus());
-                DroneHUDApplication.busPost(gpsEv);
+                updateGpsFix();
                 break;
 
             case AttributeEvent.BATTERY_UPDATED:
-                Battery battery = this.drone.getAttribute(AttributeType.BATTERY);
-                BatteryUpdateEvent batEv = new BatteryUpdateEvent();
-                batEv.setData(battery.getBatteryVoltage());
-                DroneHUDApplication.busPost(batEv);
+                updateBattery();
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
-                Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
-                AttitudeUpdateEvent attitudeEvent = new AttitudeUpdateEvent();
-                attitudeEvent.setData(attitude);
-                DroneHUDApplication.busPost(attitudeEvent);
+                updateAttitude();
                 break;
             default:
                 Log.i("DRONE_EVENT", event);
@@ -281,9 +273,12 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
     protected void updateSpeed() {
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-        GroundSpeedEvent ev = new GroundSpeedEvent();
-        ev.setData(droneSpeed.getGroundSpeed());
-        DroneHUDApplication.busPost(ev);
+        GroundSpeedEvent grEv = new GroundSpeedEvent();
+        grEv.setData(droneSpeed.getGroundSpeed());
+        DroneHUDApplication.busPost(grEv);
+        AirSpeedEvent airEv = new AirSpeedEvent();
+        airEv.setData(droneSpeed.getAirSpeed());
+        DroneHUDApplication.busPost(airEv);
     }
 
     protected void updateDistanceFromHome() {
@@ -308,6 +303,26 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         DroneHUDApplication.busPost(ev);
     }
 
+    public void updateAttitude() {
+        Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
+        AttitudeUpdateEvent attitudeEvent = new AttitudeUpdateEvent();
+        attitudeEvent.setData(attitude);
+        DroneHUDApplication.busPost(attitudeEvent);
+    }
+
+    public void updateBattery() {
+        Battery battery = this.drone.getAttribute(AttributeType.BATTERY);
+        BatteryUpdateEvent batEv = new BatteryUpdateEvent();
+        batEv.setData(battery.getBatteryVoltage());
+        DroneHUDApplication.busPost(batEv);
+    }
+
+    public void updateGpsFix() {
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        GpsFixEvent gpsEv = new GpsFixEvent();
+        gpsEv.setData(droneGps.getFixStatus());
+        DroneHUDApplication.busPost(gpsEv);
+    }
 
     // UI Telemetry Events
     // ==========================================================

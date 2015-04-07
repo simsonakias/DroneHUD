@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.drones.dimis.dronehud.R;
 import com.drones.dimis.dronehud.activities.DroneHUDApplication;
+import com.drones.dimis.dronehud.common.otto.events.AirSpeedEvent;
 import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
 import com.drones.dimis.dronehud.common.otto.events.AttitudeUpdateEvent;
 import com.drones.dimis.dronehud.common.otto.events.BatteryUpdateEvent;
@@ -161,6 +162,17 @@ public class HUDFragment extends Fragment {
 
     @Subscribe
     public void onEvent(final GroundSpeedEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setGroundSpeed(event.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final AirSpeedEvent event) {
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
