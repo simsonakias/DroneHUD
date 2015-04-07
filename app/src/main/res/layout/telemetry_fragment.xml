@@ -6,7 +6,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/material_blue_grey_800">
 
     <Button
         android:id="@+id/btnConnect"
@@ -14,9 +15,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/connectionTypeLabel"
         android:onClick="onBtnConnectTap"
-        android:text="Connect" />
+        android:text="Connect"
+        android:textColor="@color/link_text_material_light"/>
 
     <Spinner
         android:id="@+id/selectConnectionType"
@@ -26,7 +27,8 @@
         android:layout_alignParentStart="true"
         android:layout_toLeftOf="@+id/btnConnect"
         android:entries="@array/drone_connection_types"
-        android:spinnerMode="dropdown" />
+        android:spinnerMode="dropdown"
+        android:textColor="@color/link_text_material_light"/>
 
     <TableLayout
         android:layout_width="fill_parent"
@@ -49,7 +51,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="Mode:"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
 
             <Spinner
                 android:id="@+id/modeSelect"
@@ -60,7 +63,8 @@
                 android:layout_below="@+id/connectionTypeLabel"
                 android:layout_column="1"
                 android:layout_toLeftOf="@+id/btnConnect"
-                android:spinnerMode="dropdown" />
+                android:spinnerMode="dropdown"
+                android:textColor="@color/link_text_material_light"/>
         </TableRow>
 
         <TableRow
@@ -76,7 +80,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="Altitude:"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
 
             <TextView
                 android:id="@+id/altitudeValueTextView"
@@ -87,7 +92,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="0m"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
         </TableRow>
 
         <TableRow
@@ -103,7 +109,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="Speed:"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
 
             <TextView
                 android:id="@+id/speedValueTextView"
@@ -114,7 +121,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="0m/s"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
         </TableRow>
 
         <TableRow
@@ -130,7 +138,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="Distance:"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
 
             <TextView
                 android:id="@+id/distanceValueTextView"
@@ -141,7 +150,8 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
                 android:text="0m"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/link_text_material_light"/>
         </TableRow>
 
         <TableRow

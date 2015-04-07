@@ -59,8 +59,8 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         getHolder().addCallback(this);
 
         grid_paint.setColor(Color.rgb(100, 100, 100));
-        ground.setARGB(220, 148, 193, 31);
-        sky.setARGB(220, 0, 113, 188);
+        ground.setARGB(220, 70, 70, 50);
+        sky.setARGB(220, 100, 100, 200);
         whitebar.setARGB(64, 255, 255, 255);
 
         white.setColor(Color.WHITE);

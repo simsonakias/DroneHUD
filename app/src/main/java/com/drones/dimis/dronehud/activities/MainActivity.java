@@ -1,5 +1,6 @@
 package com.drones.dimis.dronehud.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.Type;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
 
-public class MainActivity extends ActionBarActivity implements DroneListener, TowerListener,
+public class MainActivity extends Activity implements DroneListener, TowerListener,
         TelemetryFragment.OnTelemetryFragmentInteractionListener, HUDFragment.OnHUDFragmentInteractionListener {
 
     private Drone drone;
@@ -84,30 +85,6 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         ft.commit();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     public void onStart() {
