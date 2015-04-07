@@ -24,37 +24,16 @@
         android:layout_height="44dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/connectionTypeLabel"
         android:layout_toLeftOf="@+id/btnConnect"
         android:entries="@array/drone_connection_types"
         android:spinnerMode="dropdown" />
-
-    <TextView
-        android:id="@+id/connectionTypeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="Connection Type"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/telemetryLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/connectionTypeLabel"
-        android:layout_alignStart="@+id/connectionTypeLabel"
-        android:layout_below="@+id/btnConnect"
-        android:layout_marginTop="20dp"
-        android:text="Vehicle Telemetry"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TableLayout
         android:layout_width="fill_parent"
         android:layout_height="200dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/telemetryLabel"
+        android:layout_below="@+id/btnConnect"
         android:layout_marginTop="10dp">
 
         <TableRow
@@ -181,8 +160,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/connectionTypeLabel"
                 android:layout_column="1"
-                android:onClick="onArmButtonTap"
-                android:visibility="invisible" />
+                android:onClick="onArmButtonTap"/>
         </TableRow>
 
     </TableLayout>

@@ -10,7 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.drones.dimis.dronehud.R;
+import com.drones.dimis.dronehud.activities.DroneHUDApplication;
+import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
+import com.drones.dimis.dronehud.common.otto.events.AttitudeUpdateEvent;
+import com.drones.dimis.dronehud.common.otto.events.BatteryUpdateEvent;
+import com.drones.dimis.dronehud.common.otto.events.DistanceFromHomeEvent;
+import com.drones.dimis.dronehud.common.otto.events.GpsFixEvent;
+import com.drones.dimis.dronehud.common.otto.events.GroundSpeedEvent;
+import com.drones.dimis.dronehud.common.otto.events.VehicleStateEvent;
 import com.drones.dimis.dronehud.widget.HUDwidget;
+import com.squareup.otto.Subscribe;
 
 
 /**
@@ -73,7 +82,7 @@ public class HUDFragment extends Fragment {
         hudWidget.setAirSpeed(0);
         hudWidget.setGroundSpeed(0);
         hudWidget.setGPSFix("NoGPS");
-        hudWidget.setBatteryMVolt("Batt 0v");
+        hudWidget.setBatteryMVolt((double) 0);
         return rootView;
     }
 
@@ -101,6 +110,18 @@ public class HUDFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        DroneHUDApplication.busUnregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        DroneHUDApplication.busRegister(this);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -116,4 +137,83 @@ public class HUDFragment extends Fragment {
         public void onHUDFragmentInteraction(Uri uri);
     }
 
+
+    @Subscribe
+    public void onEvent(final VehicleStateEvent event) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(event.getData().getVehicleMode()!=null)
+                hudWidget.setMode( event.getData().getVehicleMode().getMode());
+            }});
+
+    }
+
+    @Subscribe
+    public void onEvent(final AltitudeEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setAltitude(event.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final GroundSpeedEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setGroundSpeed(event.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final DistanceFromHomeEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setDistanceToWaypoint(event.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final GpsFixEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setGPSFix(event.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final BatteryUpdateEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.setBatteryMVolt(event.getData());
+            }
+        });
+    }
+
+
+
+    @Subscribe
+    public void onEvent(final AttitudeUpdateEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hudWidget.newFlightData(event.getData().getRoll(),event.getData().getPitch(),event.getData().getYaw());
+            }
+        });
+    }
 }

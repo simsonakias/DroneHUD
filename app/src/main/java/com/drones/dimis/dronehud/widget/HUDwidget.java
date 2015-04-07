@@ -34,7 +34,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
     double roll = 0, pitch = 0, yaw = 0, altitude = 0, disttowp = 0, verticalSpeed = 0, groundSpeed = 0, airSpeed = 0;
     int wpno = -1;
     private String remainBatt = "";
-    private String battVolt = "";
+    private double battVolt = 0;
     private String gpsFix = "";
     private String mode = "UKN";
 
@@ -160,7 +160,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         //drawText(canvas, 0, altitude, statusText, true);
 
         drawText(canvas, 1, remainBatt, statusText, false);
-        drawText(canvas, 0, battVolt, statusText, false);
+        drawText(canvas, 0, "Bat: "+Double.toString(battVolt)+"v", statusText, false);
 
     }
 
@@ -501,7 +501,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
      * @param pitch
      * @param yaw
      */
-    public void newFlightData(float roll, float pitch, float yaw) {
+    public void newFlightData(double roll, double pitch, double yaw) {
         double r = (roll * 180.0 / Math.PI), p = (pitch * 180.0 / Math.PI), y = (yaw * 180.0 / Math.PI);
 
         if (r != roll || p != pitch || y != yaw) {
@@ -569,8 +569,8 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    public void setBatteryMVolt(String vbat) {
-        if (!battVolt.equals(vbat)) {
+    public void setBatteryMVolt(Double vbat) {
+        if (battVolt!=vbat) {
             battVolt = vbat;
             setDirty();
         }

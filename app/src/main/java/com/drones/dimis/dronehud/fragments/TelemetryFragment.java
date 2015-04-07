@@ -9,12 +9,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.drones.dimis.dronehud.R;
 import com.drones.dimis.dronehud.activities.DroneHUDApplication;
+import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
+import com.drones.dimis.dronehud.common.otto.events.ConnectEvent;
+import com.drones.dimis.dronehud.common.otto.events.DistanceFromHomeEvent;
+import com.drones.dimis.dronehud.common.otto.events.DroneTypeEvent;
+import com.drones.dimis.dronehud.common.otto.events.GroundSpeedEvent;
+import com.drones.dimis.dronehud.common.otto.events.VehicleStateEvent;
 import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
@@ -40,7 +49,11 @@ public class TelemetryFragment extends Fragment {
     private OnTelemetryFragmentInteractionListener mListener;
 
     Spinner modeSelector;//to fragment
-
+    Button connectButton;
+    Button armButton;
+    TextView altitudeTextView;
+    TextView speedTextView;
+    TextView distanceTextView;
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -78,7 +91,12 @@ public class TelemetryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.telemetry_fragment, container, false);
-
+        connectButton = (Button) rootView.findViewById(R.id.btnConnect);
+        armButton = (Button) rootView.findViewById(R.id.btnArmTakeOff);
+        armButton.setText("N/A");
+        altitudeTextView = (TextView) rootView.findViewById(R.id.altitudeValueTextView);
+         speedTextView = (TextView) rootView.findViewById(R.id.speedValueTextView);
+         distanceTextView = (TextView) rootView.findViewById(R.id.distanceValueTextView);
         return rootView;
     }
 
@@ -98,6 +116,7 @@ public class TelemetryFragment extends Fragment {
                 // Do nothing
             }
         });
+
 
         updateVehicleModesForType(mParam1);
 
@@ -122,7 +141,6 @@ public class TelemetryFragment extends Fragment {
         if (mListener != null) {
             mListener.onTelemetryFragmentInteraction(vehicleMode);
         }
-        //
     }
 
     protected void updateVehicleModesForType(int droneType) {
@@ -171,6 +189,86 @@ public class TelemetryFragment extends Fragment {
     public interface OnTelemetryFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onTelemetryFragmentInteraction(VehicleMode vehicleMode);
+    }
+
+@Subscribe
+public void onEvent(final ConnectEvent event) {
+    getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+            if (event.getData().booleanValue()) {
+                connectButton.setText("Disconnect");
+            } else {
+                connectButton.setText("Connect");
+            }
+        }
+    });
+
+}
+
+    @Subscribe
+    public void onEvent(final VehicleStateEvent event) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+        if (event.getData().isFlying()) {
+            // Land
+            armButton.setText("LAND");
+        } else if (event.getData().isArmed()) {
+            // Take off
+            armButton.setText("TAKE OFF");
+        } else if (event.getData().isConnected()) {
+            // Connected but not Armed
+            armButton.setText("ARM");
+        } else armButton.setText("N/A");
+        updateVehicleMode(event.getData());
+        }});
+
+    }
+
+    @Subscribe
+    public void onEvent(final AltitudeEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                altitudeTextView.setText(String.format("%3.1f", event.getData()) + "m");
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final GroundSpeedEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+        speedTextView.setText(String.format("%3.1f", event.getData()) + "m/s");
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final DistanceFromHomeEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                distanceTextView.setText(String.format("%3.1f", event.getData()) + "m");
+            }
+        });
+    }
+
+    @Subscribe
+    public void onEvent(final DroneTypeEvent event) {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateVehicleModesForType(event.getData());
+            }
+        });
     }
 
 }

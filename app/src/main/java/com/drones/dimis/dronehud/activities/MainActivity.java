@@ -10,15 +10,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drones.dimis.dronehud.R;
 import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
+import com.drones.dimis.dronehud.common.otto.events.AttitudeUpdateEvent;
+import com.drones.dimis.dronehud.common.otto.events.BatteryUpdateEvent;
+import com.drones.dimis.dronehud.common.otto.events.ConnectEvent;
 import com.drones.dimis.dronehud.common.otto.events.DistanceFromHomeEvent;
-import com.drones.dimis.dronehud.common.otto.events.SpeedEvent;
+import com.drones.dimis.dronehud.common.otto.events.DroneTypeEvent;
+import com.drones.dimis.dronehud.common.otto.events.GpsFixEvent;
+import com.drones.dimis.dronehud.common.otto.events.GroundSpeedEvent;
+import com.drones.dimis.dronehud.common.otto.events.VehicleStateEvent;
 import com.drones.dimis.dronehud.fragments.HUDFragment;
 import com.drones.dimis.dronehud.fragments.TelemetryFragment;
 import com.o3dr.android.client.ControlTower;
@@ -33,6 +37,8 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
+import com.o3dr.services.android.lib.drone.property.Attitude;
+import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Home;
 import com.o3dr.services.android.lib.drone.property.Speed;
@@ -73,8 +79,6 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
             TelemetryFragment tlm = TelemetryFragment.newInstance(this.droneType, "");
             ft.replace(R.id.telemetry_fragment_container, tlm);
         }
-
-
         ft.commit();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
@@ -146,36 +150,28 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
             case AttributeEvent.STATE_CONNECTED:
                 alertUser("Drone Connected");
                 updateConnectedButton(this.drone.isConnected());
-                updateArmButton();
-
+                updateDroneState();
                 break;
-
             case AttributeEvent.STATE_DISCONNECTED:
                 alertUser("Drone Disconnected");
                 updateConnectedButton(this.drone.isConnected());
-                updateArmButton();
+                updateDroneState();
                 break;
-
             case AttributeEvent.STATE_UPDATED:
             case AttributeEvent.STATE_ARMING:
-                updateArmButton();
+            case AttributeEvent.STATE_VEHICLE_MODE:
+                updateDroneState();
                 break;
-
             case AttributeEvent.TYPE_UPDATED:
                 Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
                 if (newDroneType.getDroneType() != this.droneType) {
                     this.droneType = newDroneType.getDroneType();
-                    //    sendOttoupdateVehicleModesForType(this.droneType);
-                    //updateVehicleModesForType(this.droneType);
+
+                    DroneTypeEvent droneTypeEv = new DroneTypeEvent();
+                    droneTypeEv.setData(this.droneType);
+                    DroneHUDApplication.busPost(droneTypeEv);
                 }
                 break;
-
-            case AttributeEvent.STATE_VEHICLE_MODE:
-                //   sendOttoupdateVehicleMode(this.drone.getAttribute(AttributeType.STATE);
-                // updateVehicleMode();
-                break;
-
-
             case AttributeEvent.SPEED_UPDATED:
                 updateAltitude();
                 updateSpeed();
@@ -185,7 +181,25 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
                 updateDistanceFromHome();
                 break;
 
+            case AttributeEvent.GPS_FIX:
+                Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+                GpsFixEvent gpsEv = new GpsFixEvent();
+                gpsEv.setData(droneGps.getFixStatus());
+                DroneHUDApplication.busPost(gpsEv);
+                break;
 
+            case AttributeEvent.BATTERY_UPDATED:
+                Battery battery = this.drone.getAttribute(AttributeType.BATTERY);
+                BatteryUpdateEvent batEv = new BatteryUpdateEvent();
+                batEv.setData(battery.getBatteryVoltage());
+                DroneHUDApplication.busPost(batEv);
+                break;
+            case AttributeEvent.ATTITUDE_UPDATED:
+                Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
+                AttitudeUpdateEvent attitudeEvent = new AttitudeUpdateEvent();
+                attitudeEvent.setData(attitude);
+                DroneHUDApplication.busPost(attitudeEvent);
+                break;
             default:
               Log.i("DRONE_EVENT", event);
                 break;
@@ -203,32 +217,9 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         alertUser("Service Interrupted:" + errorMsg);
     }
 
-    // UI Events
-    // ==========================================================
-
-    public void onBtnConnectTap(View view) {
-        if (this.drone.isConnected()) {
-            this.drone.disconnect();
-        } else {
-            Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
-            int selectedConnectionType = connectionSelector.getSelectedItemPosition();
-
-            Bundle extraParams = new Bundle();
-            if (selectedConnectionType == ConnectionType.TYPE_USB) {
-                extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, DEFAULT_USB_BAUD_RATE); // Set default baud rate to 57600
-            } else {
-                extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, DEFAULT_UDP_PORT); // Set default baud rate to 14550
-            }
-            ConnectionParameter connectionParams = new ConnectionParameter(selectedConnectionType, extraParams, null);
-            this.drone.connect(connectionParams);
-        }
-
-    }
 
     public void onArmButtonTap(View view) {
-        Button thisButton = (Button) view;
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-
         if (vehicleState.isFlying()) {
             // Land
             this.drone.changeVehicleMode(VehicleMode.COPTER_LAND);
@@ -244,38 +235,40 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         }
     }
 
-    // UI updating //to fragment
-    // ==========================================================
-
-    protected void updateConnectedButton(Boolean isConnected) {
-        Button connectButton = (Button) findViewById(R.id.btnConnect);
-        if (isConnected) {
-            connectButton.setText("Disconnect");
+    public void onBtnConnectTap(View view) {
+        if (this.drone.isConnected()) {
+            this.drone.disconnect();
         } else {
-            connectButton.setText("Connect");
+            Bundle extraParams = new Bundle();
+            Spinner connectionSelector = (Spinner) findViewById(R.id.selectConnectionType);
+            int selectedConnectionType = connectionSelector.getSelectedItemPosition();
+
+            if (selectedConnectionType == ConnectionType.TYPE_USB) {
+                extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, DEFAULT_USB_BAUD_RATE); // Set default baud rate to 57600
+            } else {
+                extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, DEFAULT_UDP_PORT); // Set default baud rate to 14550
+            }
+            ConnectionParameter connectionParams = new ConnectionParameter(selectedConnectionType, extraParams, null);
+            this.drone.connect(connectionParams);
         }
     }
 
-    protected void updateArmButton() {
+    // UI updating
+    // ==========================================================
+
+    protected void updateConnectedButton(Boolean isConnected) {
+        ConnectEvent ev = new ConnectEvent();
+        ev.setData(isConnected);
+        DroneHUDApplication.busPost(ev);
+    }
+
+    protected void updateDroneState() {
+
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
+        VehicleStateEvent ev = new VehicleStateEvent();
+        ev.setData(vehicleState);
+        DroneHUDApplication.busPost(ev);
 
-        if (!this.drone.isConnected()) {
-            armButton.setVisibility(View.INVISIBLE);
-        } else {
-            armButton.setVisibility(View.VISIBLE);
-        }
-
-        if (vehicleState.isFlying()) {
-            // Land
-            armButton.setText("LAND");
-        } else if (vehicleState.isArmed()) {
-            // Take off
-            armButton.setText("TAKE OFF");
-        } else if (vehicleState.isConnected()) {
-            // Connected but not Armed
-            armButton.setText("ARM");
-        }
     }
 
     protected void updateAltitude() {
@@ -283,21 +276,13 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         AltitudeEvent ev = new AltitudeEvent();
         ev.setData(droneAltitude.getAltitude());
         DroneHUDApplication.busPost(ev);
-
-//        TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
-//        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-//        altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
     }
 
     protected void updateSpeed() {
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-        SpeedEvent ev = new SpeedEvent();
+        GroundSpeedEvent ev = new GroundSpeedEvent();
         ev.setData(droneSpeed.getGroundSpeed());
         DroneHUDApplication.busPost(ev);
-//
-//        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
-//        Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-//        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
 
     protected void updateDistanceFromHome() {
@@ -320,8 +305,6 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         DistanceFromHomeEvent ev = new DistanceFromHomeEvent();
         ev.setData(distanceFromHome);
         DroneHUDApplication.busPost(ev);
-//        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
-//        distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
 
@@ -342,10 +325,17 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+
+    // UI Telemetry Events
+    // ==========================================================
     @Override
     public void onTelemetryFragmentInteraction(VehicleMode vehicleMode) {
         this.drone.changeVehicleMode(vehicleMode);
     }
+
+
+    // UI HUD Events
+    // ==========================================================
 
     @Override
     public void onHUDFragmentInteraction(Uri uri) {
