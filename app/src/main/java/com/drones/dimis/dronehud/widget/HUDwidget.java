@@ -160,7 +160,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         //drawText(canvas, 0, altitude, statusText, true);
 
         drawText(canvas, 1, remainBatt, statusText, false);
-        drawText(canvas, 0, "Bat: "+Double.toString(battVolt)+"v", statusText, false);
+        drawText(canvas, 0, "Bat: " + Double.toString(battVolt) + "v", statusText, false);
 
     }
 
@@ -570,7 +570,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void setBatteryMVolt(Double vbat) {
-        if (battVolt!=vbat) {
+        if (battVolt != vbat) {
             battVolt = vbat;
             setDirty();
         }

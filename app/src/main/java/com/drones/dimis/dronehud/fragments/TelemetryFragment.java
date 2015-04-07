@@ -54,6 +54,7 @@ public class TelemetryFragment extends Fragment {
     TextView altitudeTextView;
     TextView speedTextView;
     TextView distanceTextView;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -83,8 +84,6 @@ public class TelemetryFragment extends Fragment {
             mParam1 = getArguments().getInt(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
     }
 
     @Override
@@ -95,8 +94,8 @@ public class TelemetryFragment extends Fragment {
         armButton = (Button) rootView.findViewById(R.id.btnArmTakeOff);
         armButton.setText("N/A");
         altitudeTextView = (TextView) rootView.findViewById(R.id.altitudeValueTextView);
-         speedTextView = (TextView) rootView.findViewById(R.id.speedValueTextView);
-         distanceTextView = (TextView) rootView.findViewById(R.id.distanceValueTextView);
+        speedTextView = (TextView) rootView.findViewById(R.id.speedValueTextView);
+        distanceTextView = (TextView) rootView.findViewById(R.id.distanceValueTextView);
         return rootView;
     }
 
@@ -117,11 +116,8 @@ public class TelemetryFragment extends Fragment {
             }
         });
 
-
         updateVehicleModesForType(mParam1);
-
     }
-
 
     @Override
     public void onPause() {
@@ -134,30 +130,6 @@ public class TelemetryFragment extends Fragment {
         super.onResume();
         DroneHUDApplication.busRegister(this);
     }
-
-
-    public void onFlightModeSelected(View view) {
-        VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
-        if (mListener != null) {
-            mListener.onTelemetryFragmentInteraction(vehicleMode);
-        }
-    }
-
-    protected void updateVehicleModesForType(int droneType) {
-
-        List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
-        ArrayAdapter<VehicleMode> vehicleModeArrayAdapter;
-        vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(getActivity(), android.R.layout.simple_spinner_item, vehicleModes);
-        vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.modeSelector.setAdapter(vehicleModeArrayAdapter);
-    }
-
-    protected void updateVehicleMode(State vehicleState) {
-        VehicleMode vehicleMode = vehicleState.getVehicleMode();
-        ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
-        this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
-    }
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -191,20 +163,42 @@ public class TelemetryFragment extends Fragment {
         public void onTelemetryFragmentInteraction(VehicleMode vehicleMode);
     }
 
-@Subscribe
-public void onEvent(final ConnectEvent event) {
-    getActivity().runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-            if (event.getData().booleanValue()) {
-                connectButton.setText("Disconnect");
-            } else {
-                connectButton.setText("Connect");
-            }
-        }
-    });
 
-}
+    public void onFlightModeSelected(View view) {
+        VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
+        if (mListener != null) {
+            mListener.onTelemetryFragmentInteraction(vehicleMode);
+        }
+    }
+
+    protected void updateVehicleModesForType(int droneType) {
+
+        List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
+        ArrayAdapter<VehicleMode> vehicleModeArrayAdapter;
+        vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(getActivity(), android.R.layout.simple_spinner_item, vehicleModes);
+        vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.modeSelector.setAdapter(vehicleModeArrayAdapter);
+    }
+
+    protected void updateVehicleMode(State vehicleState) {
+        VehicleMode vehicleMode = vehicleState.getVehicleMode();
+        ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
+        this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
+    }
+
+    @Subscribe
+    public void onEvent(final ConnectEvent event) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (event.getData().booleanValue()) {
+                    connectButton.setText("Disconnect");
+                } else {
+                    connectButton.setText("Connect");
+                }
+            }
+        });
+    }
 
     @Subscribe
     public void onEvent(final VehicleStateEvent event) {
@@ -212,24 +206,23 @@ public void onEvent(final ConnectEvent event) {
             @Override
             public void run() {
 
-        if (event.getData().isFlying()) {
-            // Land
-            armButton.setText("LAND");
-        } else if (event.getData().isArmed()) {
-            // Take off
-            armButton.setText("TAKE OFF");
-        } else if (event.getData().isConnected()) {
-            // Connected but not Armed
-            armButton.setText("ARM");
-        } else armButton.setText("N/A");
-        updateVehicleMode(event.getData());
-        }});
-
+                if (event.getData().isFlying()) {
+                    // Land
+                    armButton.setText("LAND");
+                } else if (event.getData().isArmed()) {
+                    // Take off
+                    armButton.setText("TAKE OFF");
+                } else if (event.getData().isConnected()) {
+                    // Connected but not Armed
+                    armButton.setText("ARM");
+                } else armButton.setText("N/A");
+                updateVehicleMode(event.getData());
+            }
+        });
     }
 
     @Subscribe
     public void onEvent(final AltitudeEvent event) {
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -240,18 +233,16 @@ public void onEvent(final ConnectEvent event) {
 
     @Subscribe
     public void onEvent(final GroundSpeedEvent event) {
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-        speedTextView.setText(String.format("%3.1f", event.getData()) + "m/s");
+                speedTextView.setText(String.format("%3.1f", event.getData()) + "m/s");
             }
         });
     }
 
     @Subscribe
     public void onEvent(final DistanceFromHomeEvent event) {
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -262,7 +253,6 @@ public void onEvent(final ConnectEvent event) {
 
     @Subscribe
     public void onEvent(final DroneTypeEvent event) {
-
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

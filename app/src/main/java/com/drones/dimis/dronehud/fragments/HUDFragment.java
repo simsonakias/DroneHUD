@@ -61,7 +61,6 @@ public class HUDFragment extends Fragment {
     }
 
     public HUDFragment() {
-
         // Required empty public constructor
     }
 
@@ -137,15 +136,15 @@ public class HUDFragment extends Fragment {
         public void onHUDFragmentInteraction(Uri uri);
     }
 
-
     @Subscribe
     public void onEvent(final VehicleStateEvent event) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(event.getData().getVehicleMode()!=null)
-                hudWidget.setMode( event.getData().getVehicleMode().getMode());
-            }});
+                if (event.getData().getVehicleMode() != null)
+                    hudWidget.setMode(event.getData().getVehicleMode().getMode());
+            }
+        });
 
     }
 
@@ -204,15 +203,13 @@ public class HUDFragment extends Fragment {
         });
     }
 
-
-
     @Subscribe
     public void onEvent(final AttitudeUpdateEvent event) {
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hudWidget.newFlightData(event.getData().getRoll(),event.getData().getPitch(),event.getData().getYaw());
+                hudWidget.newFlightData(event.getData().getRoll(), event.getData().getPitch(), event.getData().getYaw());
             }
         });
     }

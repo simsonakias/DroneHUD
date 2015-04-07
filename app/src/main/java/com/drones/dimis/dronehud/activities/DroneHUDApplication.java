@@ -19,23 +19,24 @@ public class DroneHUDApplication extends Application {
     }
 
     public static void busPost(BaseOttoEvent event) {
-        if(bus == null) bus = new Bus(ThreadEnforcer.ANY);
+        if (bus == null) bus = new Bus(ThreadEnforcer.ANY);
         bus.post(event);
     }
 
     public static void busRegister(Object object) {
-        if(bus == null) bus = new Bus(ThreadEnforcer.ANY);
-            bus.register(object);
+        if (bus == null) bus = new Bus(ThreadEnforcer.ANY);
+        bus.register(object);
 
     }
 
     public static void busUnregister(Object object) {
-        if(bus != null){
-        try {
-            bus.unregister(object);
-        } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
-        }}
+        if (bus != null) {
+            try {
+                bus.unregister(object);
+            } catch (IllegalArgumentException ex) {
+                ex.printStackTrace();
+            }
+        }
 
     }
 }

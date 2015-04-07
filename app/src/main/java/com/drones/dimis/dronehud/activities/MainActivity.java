@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.drones.dimis.dronehud.R;
 import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
@@ -23,6 +22,7 @@ import com.drones.dimis.dronehud.common.otto.events.DroneTypeEvent;
 import com.drones.dimis.dronehud.common.otto.events.GpsFixEvent;
 import com.drones.dimis.dronehud.common.otto.events.GroundSpeedEvent;
 import com.drones.dimis.dronehud.common.otto.events.VehicleStateEvent;
+import com.drones.dimis.dronehud.common.utils.Utilities;
 import com.drones.dimis.dronehud.fragments.HUDFragment;
 import com.drones.dimis.dronehud.fragments.TelemetryFragment;
 import com.o3dr.android.client.ControlTower;
@@ -56,6 +56,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
     private final int DEFAULT_UDP_PORT = 14550;
     private final int DEFAULT_USB_BAUD_RATE = 57600;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,14 +131,14 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
     @Override
     public void onTowerConnected() {
-        alertUser("3DR Services Connected");
+        Utilities.alertUser("3DR Services Connected", getApplicationContext());
         this.controlTower.registerDrone(this.drone, this.handler);
         this.drone.registerDroneListener(this);
     }
 
     @Override
     public void onTowerDisconnected() {
-        alertUser("3DR Service Interrupted");
+        Utilities.alertUser("3DR Service Interrupted", getApplicationContext());
     }
 
     // Drone Listener
@@ -148,12 +149,12 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
-                alertUser("Drone Connected");
+                Utilities.alertUser("Drone Connected", getApplicationContext());
                 updateConnectedButton(this.drone.isConnected());
                 updateDroneState();
                 break;
             case AttributeEvent.STATE_DISCONNECTED:
-                alertUser("Drone Disconnected");
+                Utilities.alertUser("Drone Disconnected", getApplicationContext());
                 updateConnectedButton(this.drone.isConnected());
                 updateDroneState();
                 break;
@@ -201,7 +202,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
                 DroneHUDApplication.busPost(attitudeEvent);
                 break;
             default:
-              Log.i("DRONE_EVENT", event);
+                Log.i("DRONE_EVENT", event);
                 break;
         }
 
@@ -209,12 +210,12 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
     @Override
     public void onDroneConnectionFailed(ConnectionResult result) {
-        alertUser("Connection Failed:" + result.getErrorMessage());
+        Utilities.alertUser("Connection Failed:" + result.getErrorMessage(), getApplicationContext());
     }
 
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
-        alertUser("Service Interrupted:" + errorMsg);
+        Utilities.alertUser("Service Interrupted:" + errorMsg, getApplicationContext());
     }
 
 
@@ -228,7 +229,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
             this.drone.doGuidedTakeoff(10);
         } else if (!vehicleState.isConnected()) {
             // Connect
-            alertUser("Connect to a drone first");
+            Utilities.alertUser("Connect to a drone first", getApplicationContext());
         } else if (vehicleState.isConnected() && !vehicleState.isArmed()) {
             // Connected but not Armed
             this.drone.arm(true);
@@ -297,7 +298,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         if (droneGps.isValid()) {
             LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
             Home droneHome = this.drone.getAttribute(AttributeType.HOME);
-            distanceFromHome = distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
+            distanceFromHome = Utilities.distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
         } else {
             distanceFromHome = 0;
         }
@@ -305,24 +306,6 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
         DistanceFromHomeEvent ev = new DistanceFromHomeEvent();
         ev.setData(distanceFromHome);
         DroneHUDApplication.busPost(ev);
-    }
-
-
-    // Helper methods
-    // ==========================================================
-
-    protected void alertUser(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-    }
-
-    protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
-        if (pointA == null || pointB == null) {
-            return 0;
-        }
-        double dx = pointA.getLatitude() - pointB.getLatitude();
-        double dy = pointA.getLongitude() - pointB.getLongitude();
-        double dz = pointA.getAltitude() - pointB.getAltitude();
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
 
