@@ -43,8 +43,9 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
     Paint sky = new Paint();
     Paint white = new Paint();
     Paint whiteCenter = new Paint();
+    Paint whiteCenter2 = new Paint();
     Paint whitebar = new Paint();
-    Paint whiteStroke = new Paint();
+    Paint greenStroke = new Paint();
     Paint statusText = new Paint();
     Paint ScrollerText = new Paint();
     Paint ScrollerTextLeft = new Paint();
@@ -71,6 +72,11 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
                 .getDisplayMetrics().density);
         whiteCenter.setTextAlign(Align.CENTER);
 
+        whiteCenter2.setColor(Color.WHITE);
+        whiteCenter2.setTextSize(10.0f * context.getResources()
+                .getDisplayMetrics().density);
+        whiteCenter2.setTextAlign(Align.CENTER);
+
         statusText.setColor(Color.RED);
         statusText.setTextSize(15.0f * context.getResources()
                 .getDisplayMetrics().density);
@@ -80,10 +86,11 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         ScrollerTextLeft = new Paint(ScrollerText);
         ScrollerTextLeft.setTextAlign(Paint.Align.RIGHT);
 
-        whiteStroke.setColor(Color.WHITE);
-        whiteStroke.setStyle(Style.STROKE);
-        whiteStroke.setStrokeWidth(3);
-        whiteStroke.setAntiAlias(true);    // Shouldn't affect performance
+        greenStroke.setColor(Color.GREEN);
+        greenStroke.setStyle(Style.STROKE);
+        greenStroke.setStrokeWidth(3);
+        greenStroke.setTextSize(40);
+        greenStroke.setAntiAlias(true);    // Shouldn't affect performance
 
         plane.setColor(Color.RED);
         plane.setStyle(Style.STROKE);
@@ -165,8 +172,8 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void drawYaw(Canvas canvas) {
-        canvas.drawRect(-width, -height / 2, width, -height / 2 + 30, sky);
-        canvas.drawLine(-width, -height / 2 + 30, width, -height / 2 + 30,
+        canvas.drawRect(-width, -height / 2, width, -height / 2 + 40, sky);
+        canvas.drawLine(-width, -height / 2 + 40, width, -height / 2 + 40,
                 white);
 
         // width / 2 == yawPosition
@@ -196,11 +203,11 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
                 String compass[] = {"N", "E", "S", "W"};
                 int index = (int) workAngle / 90;
                 canvas.drawText(compass[index], distanceToCenter,
-                        -height / 2 + 20, whiteStroke);
+                        -height / 2 + 20, greenStroke);
 
             } else
                 canvas.drawText((int) (workAngle) + "", distanceToCenter,
-                        -height / 2 + 20, whiteCenter);
+                        -height / 2 + 20, whiteCenter2);
 
         }
 
@@ -214,7 +221,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         RectF rec = new RectF(-r, -height / 2 + 60, r, -height / 2 + 60 + 2 * r);
 
         // Draw the arc
-        canvas.drawArc(rec, -180 + 45, 90, false, whiteStroke);
+        canvas.drawArc(rec, -180 + 45, 90, false, greenStroke);
 
         // draw the ticks
         // The center of the circle is at:
@@ -226,7 +233,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
             float dx = (float) Math.sin(i * Math.PI / 180) * r;
             float dy = (float) Math.cos(i * Math.PI / 180) * r;
             canvas.drawLine(dx, centerY - dy, (dx + (dx / 25)), centerY
-                    - (dy + dy / 25), whiteStroke);
+                    - (dy + dy / 25), greenStroke);
 
             // Draw the labels
             if (i != 0) {
@@ -304,10 +311,10 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         vsiFill.lineTo(scroller.left, (scroller.centerY() - ((float) verticalSpeed) * linespace));
         vsiFill.lineTo(scroller.left, scroller.centerY());
         canvas.drawPath(vsiFill, blueVSI);
-        canvas.drawPath(vsiBox, whiteStroke);
+        canvas.drawPath(vsiBox, greenStroke);
 
         // Draw Altitude Scroller
-        canvas.drawRect(scroller, whiteStroke);
+        canvas.drawRect(scroller, greenStroke);
         canvas.drawRect(scroller, whitebar);
 
         float space = scroller.height() / (float) SCROLLER_ALT_RANGE;
@@ -316,7 +323,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         for (int a = start; a <= (altitude + SCROLLER_ALT_RANGE / 2); a += 1) { // go trough 1m steps
             if (a % 5 == 0) {
                 float lineHeight = scroller.centerY() - space * (a - (int) altitude);
-                canvas.drawLine(scroller.left, lineHeight, scroller.left + 10, lineHeight, whiteStroke);
+                canvas.drawLine(scroller.left, lineHeight, scroller.left + 10, lineHeight, greenStroke);
                 canvas.drawText(Integer.toString(a), scroller.left + 15, lineHeight + textHalfSize, ScrollerText);
             }
             //TODO add target altitude indicator
@@ -349,7 +356,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
         RectF scroller = new RectF(-width * .50f, -height * SCROLLER_HEIGHT_PERCENT, width * (-0.5f + SCROLLER_WIDTH_PERCENT), height * SCROLLER_HEIGHT_PERCENT);
 
         // Draw Stroller
-        canvas.drawRect(scroller, whiteStroke);
+        canvas.drawRect(scroller, greenStroke);
         canvas.drawRect(scroller, whitebar);
 
         float space = scroller.height() / (float) SCROLLER_SPEED_RANGE;
@@ -360,7 +367,7 @@ public class HUDwidget extends SurfaceView implements SurfaceHolder.Callback {
                 float lineHeight = scroller.centerY() - space
                         * (a - (int) speed);
                 canvas.drawLine(scroller.right, lineHeight, scroller.right - 10,
-                        lineHeight, whiteStroke);
+                        lineHeight, greenStroke);
                 canvas.drawText(Integer.toString(a), scroller.right - 15,
                         lineHeight + textHalfSize, ScrollerTextLeft);
             }
