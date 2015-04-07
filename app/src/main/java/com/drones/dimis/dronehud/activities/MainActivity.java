@@ -1,10 +1,9 @@
-package com.drones.dimis.dronehud;
+package com.drones.dimis.dronehud.activities;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +14,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.drones.dimis.dronehud.widget.HUDwidget;
+import com.drones.dimis.dronehud.R;
+import com.drones.dimis.dronehud.fragments.HUDFragment;
+import com.drones.dimis.dronehud.fragments.TelemetryFragment;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.interfaces.DroneListener;

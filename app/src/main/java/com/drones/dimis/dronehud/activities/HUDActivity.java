@@ -1,4 +1,4 @@
-package com.drones.dimis.dronehud;
+package com.drones.dimis.dronehud.activities;
 
 
 /*

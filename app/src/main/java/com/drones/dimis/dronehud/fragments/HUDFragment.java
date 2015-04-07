@@ -1,4 +1,4 @@
-package com.drones.dimis.dronehud;
+package com.drones.dimis.dronehud.fragments;
 
 
 import android.app.Activity;
@@ -9,13 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.drones.dimis.dronehud.R;
 import com.drones.dimis.dronehud.widget.HUDwidget;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link com.drones.dimis.dronehud.HUDFragment.OnHUDFragmentInteractionListener} interface
+ * {@link HUDFragment.OnHUDFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link HUDFragment#newInstance} factory method to
  * create an instance of this fragment.

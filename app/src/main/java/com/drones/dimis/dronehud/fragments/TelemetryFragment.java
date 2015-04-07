@@ -1,4 +1,4 @@
-package com.drones.dimis.dronehud;
+package com.drones.dimis.dronehud.fragments;
 
 
 import android.app.Activity;
@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.drones.dimis.dronehud.R;
 import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
 
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link com.drones.dimis.dronehud.TelemetryFragment.OnTelemetryFragmentInteractionListener} interface
+ * {@link TelemetryFragment.OnTelemetryFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link TelemetryFragment#newInstance} factory method to
  * create an instance of this fragment.
