@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.drones.dimis.dronehud.R;
+import com.drones.dimis.dronehud.common.otto.events.AltitudeEvent;
+import com.drones.dimis.dronehud.common.otto.events.DistanceFromHomeEvent;
+import com.drones.dimis.dronehud.common.otto.events.SpeedEvent;
 import com.drones.dimis.dronehud.fragments.HUDFragment;
 import com.drones.dimis.dronehud.fragments.TelemetryFragment;
 import com.o3dr.android.client.ControlTower;
@@ -183,7 +187,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
 
             default:
-//                Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
+              Log.i("DRONE_EVENT", event);
                 break;
         }
 
@@ -196,7 +200,7 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
 
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
-
+        alertUser("Service Interrupted:" + errorMsg);
     }
 
     // UI Events
@@ -275,19 +279,29 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
     }
 
     protected void updateAltitude() {
-        TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
+        AltitudeEvent ev = new AltitudeEvent();
+        ev.setData(droneAltitude.getAltitude());
+        DroneHUDApplication.busPost(ev);
+
+//        TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
+//        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
+//        altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
     }
 
     protected void updateSpeed() {
-        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
+        SpeedEvent ev = new SpeedEvent();
+        ev.setData(droneSpeed.getGroundSpeed());
+        DroneHUDApplication.busPost(ev);
+//
+//        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
+//        Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
+//        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
 
     protected void updateDistanceFromHome() {
-        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
+
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         double vehicleAltitude = droneAltitude.getAltitude();
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
@@ -303,7 +317,11 @@ public class MainActivity extends ActionBarActivity implements DroneListener, To
             distanceFromHome = 0;
         }
 
-        distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
+        DistanceFromHomeEvent ev = new DistanceFromHomeEvent();
+        ev.setData(distanceFromHome);
+        DroneHUDApplication.busPost(ev);
+//        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
+//        distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
     }
 
 

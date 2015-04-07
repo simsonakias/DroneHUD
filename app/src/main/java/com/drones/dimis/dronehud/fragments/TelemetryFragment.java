@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.drones.dimis.dronehud.R;
+import com.drones.dimis.dronehud.activities.DroneHUDApplication;
 import com.o3dr.services.android.lib.drone.property.State;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
 
@@ -106,11 +107,13 @@ public class TelemetryFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        DroneHUDApplication.busUnregister(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        DroneHUDApplication.busRegister(this);
     }
 
 
